@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GeoClone Pro | Full Math Keyboard & Graphing Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 1450px;
+            max-width: 98vw;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            padding: 1.2rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px;
+            border-radius: 60px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            font-family: monospace;
+        }
+
+        .tool-btn:hover {
+            background: #3b82f6;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        }
+
+        .tool-btn.active {
+            background: #2563eb;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 0 2px #60a5fa;
+        }
+
+        /* Function input area with on-screen keyboard */
+        .func-panel {
+            background: rgba(0,0,0,0.4);
+            border-radius: 1.5rem;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .func-input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .func-input-field {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid #3b82f6;
+            padding: 12px 16px;
+            border-radius: 40px;
+            color: #facc15;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
+        }
+
+        /* Math Keyboard for Function Input */
+        .math-keyboard {
+            background: #1e293b;
+            border-radius: 1.2rem;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .math-key {
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: monospace;
+            cursor: pointer;
+            transition: 0.1s;
+            min-width: 55px;
+        }
+
+        .math-key.special {
+            background: #f59e0b;
+            color: #1e293b;
+        }
+
+        .math-key.func {
+            background: #3b82f6;
+        }
+
+        .math-key:hover {
+            transform: scale(0.96);
+            filter: brightness(1.1);
+        }
+
+        .plot-btn {
+            background: #10b981;
+            padding: 10px 24px;
+            font-weight: bold;
+        }
+
+        /* Workspace */
+        .main-workspace {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .canvas-area {
+            flex: 3;
+            min-width: 300px;
+            background: #fefce8;
+            border-radius: 1.5rem;
+            padding: 8px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 1.2rem;
+            cursor: crosshair;
+            box-shadow: inset 0 0 0 1px #e2e8f0;
+        }
+
+        .right-panel {
+            flex: 1.4;
+            min-width: 340px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .elements-list {
+            background: rgba(0,0,0,0.4);
+            border-radius: 1.2rem;
+            padding: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .elements-list h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+
+        .element-item {
+            background: rgba(255,255,255,0.1);
+            margin: 5px 0;
+            padding: 6px 10px;
+            border-radius: 28px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+        }
+
+        .element-item button {
+            background: #ef4444;
+            border: none;
+            color: white;
+            border-radius: 30px;
+            padding: 2px 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Scientific Calculator */
+        .calculator {
+            background: #0f172aee;
+            border-radius: 1.2rem;
+            padding: 14px;
+            border: 1px solid #334155;
+        }
+
+        .calc-screen {
+            background: #1e293b;
+            padding: 14px;
+            border-radius: 1rem;
+            margin-bottom: 12px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #facc15;
+            word-break: break-all;
+            min-height: 65px;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .calc-btn {
+            background: #1e293b;
+            border: none;
+            color: white;
+            padding: 10px 0;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: monospace;
+        }
+
+        .calc-btn.special { background: #3b82f6; }
+        .calc-btn.op { background: #f59e0b; color: #1e293b; }
+        .calc-btn.equal { background: #10b981; grid-column: span 2; }
+        .calc-btn:hover { transform: scale(0.96); filter: brightness(1.1); }
+
+        .status {
+            font-size: 0.7rem;
+            text-align: center;
+            background: #00000066;
+            border-radius: 20px;
+            padding: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="toolbar">
+        <button class="tool-btn" id="tool-point">📍 Point</button>
+        <button class="tool-btn" id="tool-line">📏 Line</button>
+        <button class="tool-btn" id="tool-circle">⚪ Circle</button>
+        <button class="tool-btn" id="clear-all">🗑️ Clear All</button>
+        <button class="tool-btn" id="reset-view">🎯 Reset View</button>
+    </div>
+
+    <!-- Function Input with full on-screen math keyboard -->
+    <div class="func-panel">
+        <div class="func-input-group">
+            <input type="text" id="func-input" class="func-input-field" placeholder="f(x) = " value="sin(x)">
+            <button class="tool-btn plot-btn" id="plot-func">📈 Plot f(x)</button>
+        </div>
+        <div class="math-keyboard" id="mathKeyboard">
+            <!-- dynamic math keys for function input -->
+        </div>
+    </div>
+
+    <div class="main-workspace">
+        <div class="canvas-area">
+            <canvas id="mathCanvas" width="850" height="500" style="width:100%; height:auto; aspect-ratio:850/500"></canvas>
+        </div>
+        <div class="right-panel">
+            <div class="elements-list">
+                <h3>📐 Elements (Points, Lines, Circles, Functions)</h3>
+                <div id="elements-container">✨ Use tools & click canvas ✨</div>
+            </div>
+            <div class="calculator">
+                <div class="calc-screen" id="calcScreen">0</div>
+                <div class="calc-buttons" id="calcButtons"></div>
+                <div class="status">🧮 Advanced: π, θ, α, √, ^2, ^3, sin, cos, tan</div>
+            </div>
+            <div class="status" id="coords-status">🖱️ Click graph → dynamic coordinates</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- CANVAS & GRAPH ENGINE ----------
+        const canvas = document.getElementById('mathCanvas');
+        const ctx = canvas.getContext('2d');
+        let offsetX = 425, offsetY = 250;
+        let scale = 40;
+        let dragging = false;
+        let dragStart = {x:0, y:0};
+        let lastPan = {x:offsetX, y:offsetY};
+        
+        let points = [];
+        let lines = [];
+        let circles = [];
+        let functions = [];
+        let nextPointId = 1;
+        
+        function toCanvas(worldX, worldY) {
+            return { x: offsetX + worldX * scale, y: offsetY - worldY * scale };
+        }
+        function toWorld(canvasX, canvasY) {
+            return { x: (canvasX - offsetX) / scale, y: (offsetY - canvasY) / scale };
+        }
+        
+        function drawGrid() {
+            const w = canvas.width, h = canvas.height;
+            const startX = toWorld(0,0).x;
+            const endX = toWorld(w,0).x;
+            const startY = toWorld(0,h).y;
+            const endY = toWorld(0,0).y;
+            ctx.save();
+            ctx.strokeStyle = "#cbd5e1";
+            ctx.lineWidth = 0.6;
+            for(let x = Math.floor(startX); x <= Math.ceil(endX); x+=1){
+                let p = toCanvas(x,0);
+                ctx.beginPath();
+                ctx.moveTo(p.x,0);
+                ctx.lineTo(p.x,h);
+                ctx.stroke();
+            }
+            for(let y = Math.floor(startY); y <= Math.ceil(endY); y+=1){
+                let p = toCanvas(0,y);
+                ctx.beginPath();
+                ctx.moveTo(0,p.y);
+                ctx.lineTo(w,p.y);
+                ctx.stroke();
+            }
+            ctx.beginPath();
+            let origin = toCanvas(0,0);
+            ctx.moveTo(0, origin.y);
+            ctx.lineTo(w, origin.y);
+            ctx.moveTo(origin.x, 0);
+            ctx.lineTo(origin.x, h);
+            ctx.strokeStyle = "#1e293b";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = "#1e293b";
+            let arrowX = toCanvas(1,0);
+            ctx.beginPath();
+            ctx.moveTo(arrowX.x, arrowX.y);
+            ctx.lineTo(arrowX.x-8, arrowX.y-4);
+            ctx.lineTo(arrowX.x-8, arrowX.y+4);
+            ctx.fill();
+            let arrowY = toCanvas(0,1);
+            ctx.beginPath();
+            ctx.moveTo(arrowY.x, arrowY.y);
+            ctx.lineTo(arrowY.x-4, arrowY.y-8);
+            ctx.lineTo(arrowY.x+4, arrowY.y-8);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        function drawPoints() {
+            points.forEach(p => {
+                let {x,y} = toCanvas(p.x, p.y);
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2*Math.PI);
+                ctx.fillStyle = "#ef4444";
+                ctx.shadowBlur = 4;
+                ctx.fill();
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                ctx.arc(x, y, 2.5, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.fillStyle = "#0f172a";
+                ctx.font = "bold 13px monospace";
+                ctx.shadowBlur = 0;
+                ctx.fillText(p.label || `P${p.id}`, x+8, y-5);
+            });
+        }
+        
+        function drawLines() {
+            lines.forEach(line => {
+                let p1c = toCanvas(line.p1.x, line.p1.y);
+                let p2c = toCanvas(line.p2.x, line.p2.y);
+                ctx.beginPath();
+                ctx.moveTo(p1c.x, p1c.y);
+                ctx.lineTo(p2c.x, p2c.y);
+                ctx.strokeStyle = "#3b82f6";
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+            });
+        }
+        
+        function drawCircles() {
+            circles.forEach(circ => {
+                let centerC = toCanvas(circ.center.x, circ.center.y);
+                let radiusPx = circ.radius * scale;
+                ctx.beginPath();
+                ctx.arc(centerC.x, centerC.y, Math.abs(radiusPx), 0, 2*Math.PI);
+                ctx.strokeStyle = "#10b981";
+                ctx.lineWidth = 2.2;
+                ctx.stroke();
+                ctx.fillStyle = "#10b981aa";
+                ctx.beginPath();
+                ctx.arc(centerC.x, centerC.y, 4, 0, 2*Math.PI);
+                ctx.fill();
+            });
+        }
+        
+        function drawFunctions() {
+            functions.forEach(fnObj => {
+                ctx.beginPath();
+                ctx.strokeStyle = fnObj.color;
+                ctx.lineWidth = 2.8;
+                let first = true;
+                for(let px = 0; px <= canvas.width; px+=3){
+                    let worldX = toWorld(px,0).x;
+                    let yVal;
+                    try {
+                        yVal = fnObj.fn(worldX);
+                        if(!isFinite(yVal) || isNaN(yVal)) { first=true; continue; }
+                    } catch(e) { first=true; continue; }
+                    let canvasY = toCanvas(0, yVal).y;
+                    if(canvasY < -100 || canvasY > canvas.height+100) { first=true; continue; }
+                    if(first){
+                        ctx.moveTo(px, canvasY);
+                        first=false;
+                    } else {
+                        ctx.lineTo(px, canvasY);
+                    }
+                }
+                ctx.stroke();
+            });
+        }
+        
+        function render() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            drawGrid();
+            drawLines();
+            drawCircles();
+            drawFunctions();
+            drawPoints();
+        }
+        
+        function updateElementsList() {
+            const container = document.getElementById('elements-container');
+            let html = '';
+            points.forEach(p => {
+                html += `<div class="element-item">🔵 Point ${p.label} (${p.x.toFixed(2)},${p.y.toFixed(2)}) <button onclick="window.deletePoint(${p.id})">✖</button></div>`;
+            });
+            lines.forEach((l, idx) => {
+                html += `<div class="element-item">📏 Line (${l.p1.x.toFixed(1)},${l.p1.y.toFixed(1)})→(${l.p2.x.toFixed(1)},${l.p2.y.toFixed(1)}) <button onclick="window.deleteLine(${idx})">✖</button></div>`;
+            });
+            circles.forEach((c, idx) => {
+                html += `<div class="element-item">⚪ Circle r=${c.radius.toFixed(2)} @(${c.center.x.toFixed(1)},${c.center.y.toFixed(1)}) <button onclick="window.deleteCircle(${idx})">✖</button></div>`;
+            });
+            functions.forEach((f, idx) => {
+                html += `<div class="element-item">📈 f(x)=${f.expr} <button onclick="window.deleteFunction(${idx})">✖</button></div>`;
+            });
+            if(points.length+lines.length+circles.length+functions.length === 0) html = "✨ Add points, lines or plot functions ✨";
+            container.innerHTML = html;
+        }
+        
+        window.deletePoint = (id) => { points = points.filter(p => p.id !== id); render(); updateElementsList(); };
+        window.deleteLine = (idx) => { lines.splice(idx,1); render(); updateElementsList(); };
+        window.deleteCircle = (idx) => { circles.splice(idx,1); render(); updateElementsList(); };
+        window.deleteFunction = (idx) => { functions.splice(idx,1); render(); updateElementsList(); };
+        
+        // Geometry Tools
+        let currentTool = "point";
+        let tempLinePoints = [];
+        let tempCircleCenter = null;
+        
+        function setTool(tool){
+            currentTool = tool;
+            tempLinePoints = [];
+            tempCircleCenter = null;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            if(tool === 'point') document.getElementById('tool-point')?.classList.add('active');
+            if(tool === 'line') document.getElementById('tool-line')?.classList.add('active');
+            if(tool === 'circle') document.getElementById('tool-circle')?.classList.add('active');
+        }
+        
+        function onCanvasClick(e){
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            let mouseX = (e.clientX - rect.left) * sx;
+            let mouseY = (e.clientY - rect.top) * sy;
+            let world = toWorld(mouseX, mouseY);
+            if(currentTool === "point"){
+                let newPoint = { x: world.x, y: world.y, id: nextPointId++, label: `P${nextPointId-1}` };
+                points.push(newPoint);
+                render(); updateElementsList();
+            }
+            else if(currentTool === "line"){
+                tempLinePoints.push({ x: world.x, y: world.y });
+                if(tempLinePoints.length === 2){
+                    lines.push({ p1: tempLinePoints[0], p2: tempLinePoints[1] });
+                    tempLinePoints = [];
+                    render(); updateElementsList();
+                } else { render(); }
+            }
+            else if(currentTool === "circle"){
+                if(tempCircleCenter === null){
+                    tempCircleCenter = { x: world.x, y: world.y };
+                    render();
+                } else {
+                    let radius = Math.hypot(world.x - tempCircleCenter.x, world.y - tempCircleCenter.y);
+                    circles.push({ center: tempCircleCenter, radius: radius });
+                    tempCircleCenter = null;
+                    render(); updateElementsList();
+                }
+            }
+        }
+        
+        function onMouseDown(e){
+            dragging = true;
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            dragStart.x = (e.clientX - rect.left) * sx;
+            dragStart.y = (e.clientY - rect.top) * sy;
+            lastPan.x = offsetX; lastPan.y = offsetY;
+            canvas.style.cursor = 'grabbing';
+        }
+        function onMouseMove(e){
+            if(!dragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            let curX = (e.clientX - rect.left) * sx;
+            let curY = (e.clientY - rect.top) * sy;
+            offsetX = lastPan.x + (curX - dragStart.x);
+            offsetY = lastPan.y + (curY - dragStart.y);
+            render();
+        }
+        function onMouseUp(){ dragging = false; canvas.style.cursor = 'crosshair'; }
+        function onWheel(e){
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            let mouseCanvasX = (e.clientX - rect.left) * sx;
+            let mouseCanvasY = (e.clientY - rect.top) * sy;
+            let worldBefore = toWorld(mouseCanvasX, mouseCanvasY);
+            let delta = e.deltaY > 0 ? 0.95 : 1.05;
+            let newScale = scale * delta;
+            if(newScale < 10) newScale = 10;
+            if(newScale > 120) newScale = 120;
+            scale = newScale;
+            let worldAfter = toWorld(mouseCanvasX, mouseCanvasY);
+            offsetX += (worldAfter.x - worldBefore.x) * scale;
+            offsetY -= (worldAfter.y - worldBefore.y) * scale;
+            render();
+        }
+        function resetView(){
+            offsetX = canvas.width/2;
+            offsetY = canvas.height/2;
+            scale = 40;
+            render();
+        }
+        
+        // Plot function with full math parsing
+        function plotFunction(){
+            let expr = document.getElementById('func-input').value.trim();
+            if(!expr) return;
+            try {
+                let processed = expr.replace(/\^/g, '**').replace(/sqrt\(/g, 'Math.sqrt(').replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(').replace(/π/g, 'Math.PI').replace(/pi/g, 'Math.PI').replace(/theta/g, '0.785398').replace(/alpha/g, '0.523599');
+                let fn = new Function('x', 'return ' + processed);
+                let test = fn(1);
+                if(isNaN(test)) throw new Error();
+                functions.push({ expr: expr, fn: fn, color: `hsl(${Math.random() * 360}, 70%, 60%)` });
+                render();
+                updateElementsList();
+            } catch(e){ alert("Invalid function! Use x variable, e.g.: sin(x), x^2, sqrt(x), cos(x), tan(x), π, θ, α"); }
+        }
+        
+        // ---------- FUNCTION INPUT MATH KEYBOARD (on-screen) ----------
+        function buildMathKeyboard() {
+            const keyboardContainer = document.getElementById('mathKeyboard');
+            const inputField = document.getElementById('func-input');
+            const mathKeys = [
+                'x', 'y', 'π', 'θ', 'α', '^', 'sqrt', 'sin', 'cos', 'tan',
+                '(', ')', '+', '-', '*', '/', '^2', '^3', '=', 'CLEAR'
+            ];
+            keyboardContainer.innerHTML = '';
+            mathKeys.forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'math-key';
+                if(['sin','cos','tan','sqrt'].includes(key)) btn.classList.add('func');
+                if(['π','θ','α'].includes(key)) btn.classList.add('special');
+                btn.textContent = key;
+                btn.onclick = () => {
+                    if(key === 'CLEAR') {
+                        inputField.value = '';
+                    } else if(key === '^2') {
+                        inputField.value += '^2';
+                    } else if(key === '^3') {
+                        inputField.value += '^3';
+                    } else if(key === 'sqrt') {
+                        inputField.value += 'sqrt(';
+                    } else if(key === '=') {
+                        plotFunction();
+                    } else {
+                        inputField.value += key;
+                    }
+                    inputField.focus();
+                };
+                keyboardContainer.appendChild(btn);
+            });
+            // extra special: add a "Space/Del" button
+            const delBtn = document.createElement('button');
+            delBtn.className = 'math-key special';
+            delBtn.textContent = '⌫ Del';
+            delBtn.onclick = () => {
+                inputField.value = inputField.value.slice(0, -1);
+                inputField.focus();
+            };
+            keyboardContainer.appendChild(delBtn);
+        }
+        
+        // ---------- SCIENTIFIC CALCULATOR (full on-screen) ----------
+        let calcExpression = "";
+        const calcScreen = document.getElementById("calcScreen");
+        function updateCalcScreen(){ calcScreen.innerText = calcExpression === "" ? "0" : calcExpression; }
+        
+        function appendToCalc(value){
+            if(value === 'AC'){ calcExpression = ""; updateCalcScreen(); return; }
+            if(value === 'DEL'){ calcExpression = calcExpression.slice(0, -1); updateCalcScreen(); return; }
+            if(value === '='){
+                try {
+                    let toEval = calcExpression.replace(/×/g, '*').replace(/÷/g, '/').replace(/\^/g, '**');
+                    toEval = toEval.replace(/sqrt\(/g, 'Math.sqrt(').replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(');
+                    toEval = toEval.replace(/π/g, 'Math.PI').replace(/theta/g, '0.785398').replace(/alpha/g, '0.523599');
+                    toEval = toEval.replace(/(\d+)\^2/g, 'Math.pow($1,2)').replace(/(\d+)\^3/g, 'Math.pow($1,3)');
+                    let result = Function('"use strict";return (' + toEval + ')')();
+                    if(isNaN(result)) throw new Error();
+                    calcExpression = String(result);
+                    updateCalcScreen();
+                } catch(e){ calcExpression = "Error"; updateCalcScreen(); setTimeout(()=>{ calcExpression = ""; updateCalcScreen(); }, 1000); }
+                return;
+            }
+            calcExpression += value;
+            updateCalcScreen();
+        }
+        
+        function buildCalculatorUI(){
+            const flat = [
+                ['7','8','9','÷','AC'],
+                ['4','5','6','×','DEL'],
+                ['1','2','3','-','^'],
+                ['0','.','=','+','√'],
+                ['sin','cos','tan','π','θ'],
+                ['α','x','y','z','^2'],
+                ['^3','(',')','sqrt','CLEAR']
+            ];
+            const container = document.getElementById('calcButtons');
+            container.innerHTML = '';
+            for(let row of flat){
+                for(let btn of row){
+                    let button = document.createElement('button');
+                    button.className = 'calc-btn';
+                    if(btn === '=') button.classList.add('equal');
+                    if(['+','-','×','÷','^','√','sin','cos','tan','^2','^3','sqrt'].includes(btn)) button.classList.add('op');
+                    if(btn === 'AC' || btn === 'DEL') button.classList.add('special');
+                    button.innerText = btn;
+                    button.onclick = () => {
+                        if(btn === 'CLEAR') { calcExpression = ""; updateCalcScreen(); return; }
+                        if(btn === '√') appendToCalc('sqrt(');
+                        else if(btn === '^2') appendToCalc('^2');
+                        else if(btn === '^3') appendToCalc('^3');
+                        else if(btn === 'sin') appendToCalc('sin(');
+                        else if(btn === 'cos') appendToCalc('cos(');
+                        else if(btn === 'tan') appendToCalc('tan(');
+                        else if(btn === 'π') appendToCalc('π');
+                        else if(btn === 'θ') appendToCalc('theta');
+                        else if(btn === 'α') appendToCalc('alpha');
+                        else if(btn === 'x') appendToCalc('x');
+                        else if(btn === 'y') appendToCalc('y');
+                        else if(btn === 'z') appendToCalc('z');
+                        else if(btn === '÷') appendToCalc('÷');
+                        else if(btn === '×') appendToCalc('×');
+                        else if(btn === 'AC') appendToCalc('AC');
+                        else if(btn === 'DEL') appendToCalc('DEL');
+                        else if(btn === '=') appendToCalc('=');
+                        else appendToCalc(btn);
+                    };
+                    container.appendChild(button);
+                }
+            }
+        }
+        
+        // Coordinates hover
+        function updateCoordsStatus(e){
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            let mx = (e.clientX - rect.left) * sx;
+            let my = (e.clientY - rect.top) * sy;
+            if(mx>=0 && mx<=canvas.width && my>=0 && my<=canvas.height){
+                let w = toWorld(mx, my);
+                document.getElementById('coords-status').innerHTML = `📌 World: (${w.x.toFixed(3)}, ${w.y.toFixed(3)})`;
+            } else {
+                document.getElementById('coords-status').innerHTML = `🖱️ Hover over graph`;
+            }
+        }
+        
+        function clearAll(){
+            points = []; lines = []; circles = []; functions = [];
+            tempLinePoints = []; tempCircleCenter = null;
+            render(); updateElementsList();
+        }
+        
+        function resizeCanvas(){
+            const container = canvas.parentElement;
+            const w = container.clientWidth;
+            canvas.width = Math.max(700, w);
+            canvas.height = 500;
+            offsetX = canvas.width/2;
+            offsetY = canvas.height/2;
+            render();
+        }
+        
+        function init(){
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            canvas.addEventListener('click', onCanvasClick);
+            canvas.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('wheel', onWheel, {passive:false});
+            canvas.addEventListener('mousemove', updateCoordsStatus);
+            document.getElementById('tool-point').addEventListener('click', ()=>setTool('point'));
+            document.getElementById('tool-line').addEventListener('click', ()=>setTool('line'));
+            document.getElementById('tool-circle').addEventListener('click', ()=>setTool('circle'));
+            document.getElementById('clear-all').addEventListener('click', clearAll);
+            document.getElementById('plot-func').addEventListener('click', plotFunction);
+            document.getElementById('reset-view').addEventListener('click', resetView);
+            buildMathKeyboard();
+            buildCalculatorUI();
+            setTool('point');
+            // demo elements
+            points.push({ x: 1.5, y: 2, id: nextPointId++, label: "A" });
+            points.push({ x: -1, y: 1.2, id: nextPointId++, label: "B" });
+            lines.push({ p1: {x:1.5,y:2}, p2:{x:-1,y:1.2} });
+            circles.push({ center: {x:0,y:0}, radius: 1.8 });
+            functions.push({ expr: "0.8*x", fn: (x)=>0.8*x, color: "#f97316" });
+            functions.push({ expr: "sin(x)", fn: (x)=>Math.sin(x), color: "#8b5cf6" });
+            render();
+            updateElementsList();
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>
